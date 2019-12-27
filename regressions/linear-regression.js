@@ -2,6 +2,11 @@ const tf = require('@tensorflow/tfjs');
 
 class LinearRegression {
   constructor(features, labels, options) {
+    // For standardization
+    const { mean, variance } = tf.moments(features, 0);
+    this.mean = mean;
+    this.variance = variance;
+
     this.features = this.processFeatures(features);
     this.labels = tf.tensor(labels);
 
@@ -56,7 +61,12 @@ class LinearRegression {
     features = tf.tensor(features);
     features = tf.ones([features.shape[0], 1]).concat(features, 1);
 
+    features = this.standardize(features);
     return features;
+  }
+
+  standardize(features) {
+    return features.sub(this.mean).div(this.variance.pow(0.5));
   }
 }
 
