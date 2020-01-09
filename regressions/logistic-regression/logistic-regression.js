@@ -62,24 +62,16 @@ class LogisticRegression {
   }
 
   test(testFeatures, testLabels) {
-    testFeatures = this.processFeatures(testFeatures);
+    const predictions = this.predict(testFeatures).round();
     testLabels = tf.tensor(testLabels);
 
-    const predictions = testFeatures.matMul(this.weights);
-
-    const res = testLabels
-      .sub(predictions)
-      .pow(2)
+    const incorrect = predictions
+      .sub(testLabels)
+      .abs()
       .sum()
       .arraySync();
 
-    const tot = testLabels
-      .sub(testLabels.mean())
-      .pow(2)
-      .sum()
-      .arraySync();
-
-    return 1 - res / tot;
+    return (predictions.shape[0] - incorrect) / predictions.shape[0];
   }
 
   processFeatures(features) {
