@@ -9,5 +9,12 @@ const { features, labels, testFeatures, testLabels } = loadCSV(
     labelColumns: ['passedemissions'],
     shuffle: true,
     splitTest: 50,
+    converters: {
+      passedemissions: value => {
+        return value === 'TRUE' ? 1 : 0;
+      },
+    },
   },
 );
+
+console.log(labels);
