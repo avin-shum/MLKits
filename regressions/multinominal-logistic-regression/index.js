@@ -35,10 +35,8 @@ const regression = new LogisticRegression(features, _.flatMap(labels), {
   decisionBoundary: 0.5,
 });
 
-regression.weights.print();
-
 regression.train();
-regression.predict([[215, 440, 2.16]]).print();
+regression.predict([[150, 200, 2.27]]).print();
 // console.log(regression.test(testFeatures, testLabels));
 
 // plot({
