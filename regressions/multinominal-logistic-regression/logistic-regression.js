@@ -30,7 +30,7 @@ class LogisticRegression {
       .matMul(differences)
       .div(features.shape[0]);
 
-    this.weights = this.weights.sub(slopes.mul(this.options.learningRate));
+    return this.weights.sub(slopes.mul(this.options.learningRate));
   }
 
   train() {
@@ -43,13 +43,19 @@ class LogisticRegression {
       for (let j = 0; j < batchQuantity; ++j) {
         const { batchSize } = this.options;
         const startIndex = j * batchSize;
-        const featureSlice = this.features.slice(
-          [startIndex, 0],
-          [batchSize, -1],
-        );
-        const labelSlice = this.labels.slice([startIndex, 0], [batchSize, -1]);
 
-        this.gradientDescent(featureSlice, labelSlice);
+        this.weights = tf.tidy(() => {
+          const featureSlice = this.features.slice(
+            [startIndex, 0],
+            [batchSize, -1],
+          );
+          const labelSlice = this.labels.slice(
+            [startIndex, 0],
+            [batchSize, -1],
+          );
+
+          return this.gradientDescent(featureSlice, labelSlice);
+        });
       }
       this.recordCost();
       this.updateLearningRate();
@@ -60,17 +66,14 @@ class LogisticRegression {
     return this.processFeatures(observations)
       .matMul(this.weights)
       .softmax()
-      .argMax(1); 
+      .argMax(1);
   }
 
   test(testFeatures, testLabels) {
     const predictions = this.predict(testFeatures);
     testLabels = tf.tensor(testLabels).argMax(1);
 
-    const incorrect = predictions
-      .notEqual(testLabels)
-      .sum()
-      .arraySync();
+    const incorrect = predictions.notEqual(testLabels).sum().arraySync();
 
     return (predictions.shape[0] - incorrect) / predictions.shape[0];
   }
@@ -95,12 +98,7 @@ class LogisticRegression {
       .mul(-1)
       .add(1)
       .transpose()
-      .matMul(
-        guesses
-          .mul(-1)
-          .add(1)
-          .log(),
-      );
+      .matMul(guesses.mul(-1).add(1).log());
 
     const cost = termOne
       .add(termTwo)
