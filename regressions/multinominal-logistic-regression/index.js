@@ -16,13 +16,15 @@ const loadData = () => {
   return { features, labels: encodedLabels };
 };
 
-const { features, labels } = loadData();
+const regression = (() => {
+  const { features, labels } = loadData();
 
-const regression = new LogisticRegression(features, labels, {
-  learningRate: 1,
-  iterations: 20,
-  batchSize: 100,
-});
+  return new LogisticRegression(features, labels, {
+    learningRate: 1,
+    iterations: 20,
+    batchSize: 100,
+  });
+})();
 
 regression.train();
 debugger;
