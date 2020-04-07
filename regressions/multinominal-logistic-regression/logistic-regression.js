@@ -5,7 +5,8 @@ class LogisticRegression {
     // For standardization
     const { mean, variance } = tf.moments(features, 0);
     this.mean = mean;
-    this.variance = variance;
+    const filler = variance.cast('bool').logicalNot().cast('float32');
+    this.variance = variance.add(filler);
 
     this.features = this.processFeatures(features);
     this.labels = tf.tensor(labels);
